@@ -1,0 +1,14 @@
+.input-error {
+  border: 2px solid #ff3b3b !important;
+}
+
+.input-valid {
+  border: 2px solid #28a745 !important;
+}
+
+.valid-check {
+  color: #28a745;
+  font-size: 18px;
+  margin-left: 6px;
+  font-weight: bold;
+}
