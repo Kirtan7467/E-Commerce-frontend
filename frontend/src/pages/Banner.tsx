@@ -48,7 +48,7 @@ const Banner = () => {
   };
 
   return (
-    <div style={{ marginTop: "85px" }}>
+    <div style={{ marginTop: "56px" }}>
       <Swiper
         modules={[Autoplay, Pagination, Navigation]}
         autoplay={{ delay: 3000, disableOnInteraction: false }}

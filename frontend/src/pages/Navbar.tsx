@@ -35,9 +35,14 @@ const Home = () => {
     <>
       {/* ===== NAVBAR ===== */}
       <Navbar bg="dark" variant="dark" expand="lg" fixed="top" className="px-4 shadow-sm">
-        <Navbar.Brand className="fw-bold">E-Commerce</Navbar.Brand>
+        <img 
+            src="/ecommerce-svgrepo-com.svg"
+            alt="E-Commerce Logo"
+            width="32"
+            height="32"
+          />
+        <Navbar.Brand className="fw-bold ms-3">E-Commerce</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-
         <Navbar.Collapse id="basic-navbar-nav">
           
           <Nav className="ms-auto align-items-center gap-3 navbar-links">

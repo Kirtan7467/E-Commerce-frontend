@@ -18,24 +18,31 @@ const AddEditProduct = () => {
     title: "",
     price: "",
     description: "",
-    image: null as File | null,
-    preview: "",
+    images: [] as File[],
+    previews: [] as string[],
   });
 
+  // 🔄 Fetch product for edit
   useEffect(() => {
     if (!isEdit) return;
 
     const fetchProduct = async () => {
-      const res = await axios.get(`https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       setForm({
         title: res.data.title,
         price: res.data.price,
         description: res.data.description,
-        image: null,
-        preview: `https://e-commerce-backend-1-m0eh.onrender.com${res.data.image}`,
+        images: [],
+        previews: res.data.images.map(
+          (img: string) =>
+            `https://e-commerce-backend-1-m0eh.onrender.com${img}`
+        ),
       });
     };
 
@@ -48,50 +55,69 @@ const AddEditProduct = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 🖼 Multiple image handler
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      if (!validateImage(e.target.files[0])) return;
-      setForm({
-        ...form,
-        image: e.target.files[0],
-        preview: URL.createObjectURL(e.target.files[0]),
-      });
+    if (!e.target.files) return;
+
+    const files = Array.from(e.target.files);
+
+    for (const file of files) {
+      if (!validateImage(file)) return;
     }
+
+    setForm({
+      ...form,
+      images: files,
+      previews: files.map((file) => URL.createObjectURL(file)),
+    });
   };
 
+  // 🚀 Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validateRequired(form.title, form.price, form.description)) return;
 
-    if (!isEdit && !validateImage(form.image)) return; // only required on create, not edit
+    if (!isEdit && form.images.length === 0) {
+      toast.error("At least one image is required");
+      return;
+    }
 
     const data = new FormData();
     data.append("title", form.title);
     data.append("price", form.price.toString());
     data.append("description", form.description);
 
-    if (form.image) {
-      data.append("image", form.image);
-    }
+    // ✅ append multiple images
+    form.images.forEach((img) => {
+      data.append("image", img); // MUST match multer.array("image")
+    });
 
     try {
       if (isEdit) {
-        await axios.put(`https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await axios.put(
+          `https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         toast.success("Product updated successfully");
       } else {
-        await axios.post("https://e-commerce-backend-1-m0eh.onrender.com/product", data, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.post(
+          "https://e-commerce-backend-1-m0eh.onrender.com/product",
+          data,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         toast.success("Product added successfully");
       }
 
       navigate("/admin/products");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Operation failed");
     }
@@ -143,25 +169,39 @@ const AddEditProduct = () => {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>Image</Form.Label>
+                <Form.Label>Images</Form.Label>
                 <Form.Control
                   type="file"
+                  multiple
                   accept="image/*"
                   onChange={handleFileChange}
                 />
               </Form.Group>
 
-              {form.preview && (
-                <img
-                  src={form.preview}
-                  alt="preview"
+              {/* 🖼 Preview grid */}
+              {form.previews.length > 0 && (
+                <div
                   style={{
-                    width: "100%",
-                    height: 200,
-                    objectFit: "cover",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: 10,
                     marginBottom: 12,
                   }}
-                />
+                >
+                  {form.previews.map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt="preview"
+                      style={{
+                        width: "100%",
+                        height: 100,
+                        objectFit: "cover",
+                        borderRadius: 6,
+                      }}
+                    />
+                  ))}
+                </div>
               )}
 
               <Button type="submit" className="w-100">
