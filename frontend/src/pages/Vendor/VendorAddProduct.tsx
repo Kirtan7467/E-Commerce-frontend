@@ -22,16 +22,19 @@ const VendorAddProduct = () => {
     previews: [] as string[],
   });
 
+  // 🔄 Fetch product (EDIT MODE)
   useEffect(() => {
     if (!isEdit) return;
 
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        // Handle both possible backend formats
         const product = res.data.product || res.data;
 
         setForm({
@@ -39,7 +42,7 @@ const VendorAddProduct = () => {
           price: product.price || "",
           description: product.description || "",
           images: [],
-          previews: product.image
+          previews: product.images
             ? product.images.map(
                 (img: string) =>
                   `https://e-commerce-backend-1-m0eh.onrender.com${img}`
@@ -48,7 +51,7 @@ const VendorAddProduct = () => {
         });
       } catch (err) {
         toast.error("Failed to load product details");
-        console.log("Fetch error:", err);
+        console.error(err);
       }
     };
 
@@ -61,6 +64,7 @@ const VendorAddProduct = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 🖼 MULTI IMAGE HANDLER
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
@@ -77,47 +81,56 @@ const VendorAddProduct = () => {
     });
   };
 
+  // 🚀 SUBMIT
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validateRequired(form.title, form.price, form.description)) return;
+
     if (!isEdit && form.images.length === 0) {
       toast.error("At least one image is required");
       return;
     }
+
     const data = new FormData();
     data.append("title", form.title);
     data.append("price", form.price.toString());
     data.append("description", form.description);
-    data.append("vendorId", localStorage.getItem("userId")!);
 
-     form.images.forEach((img) => {
+    // ✅ append multiple images
+    form.images.forEach((img) => {
       data.append("image", img); // MUST match multer.array("image")
     });
 
     try {
       if (isEdit) {
-        await axios.put(`https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await axios.put(
+          `https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         toast.success("Product updated successfully");
       } else {
-        await axios.post("https://e-commerce-backend-1-m0eh.onrender.com/product", data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await axios.post(
+          "https://e-commerce-backend-1-m0eh.onrender.com/product",
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         toast.success("Product added successfully");
       }
 
       navigate("/vendor/dashboard");
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.log(err.response?.data);
+      console.error(err.response?.data);
       toast.error(err.response?.data?.message || "Operation failed");
     }
   };
@@ -168,14 +181,16 @@ const VendorAddProduct = () => {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>Image</Form.Label>
+                <Form.Label>Images</Form.Label>
                 <Form.Control
                   type="file"
+                  multiple
                   accept="image/*"
                   onChange={handleFileChange}
                 />
               </Form.Group>
 
+              {/* 🖼 PREVIEW GRID */}
               {form.previews.length > 0 && (
                 <div
                   style={{
