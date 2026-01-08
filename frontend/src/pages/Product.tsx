@@ -31,7 +31,7 @@ const Products = () => {
       setLoading(true);
 
       const res = await axios.get(
-        `https://e-commerce-backend-1-m0eh.onrender.com/product?page=${page}&limit=8`
+        `https://e-commerce-backend-1-m0eh.onrender.com/product?page=${page}&limit=20`
       );
 
       setProducts(res.data.products);
