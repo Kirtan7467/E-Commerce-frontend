@@ -18,8 +18,8 @@ const VendorAddProduct = () => {
     title: "",
     price: "",
     description: "",
-    image: null as File | null,
-    preview: "",
+    images: [] as File[],
+    previews: [] as string[],
   });
 
   useEffect(() => {
@@ -38,10 +38,13 @@ const VendorAddProduct = () => {
           title: product.title || "",
           price: product.price || "",
           description: product.description || "",
-          image: null,
-          preview: product.image
-            ? `https://e-commerce-backend-1-m0eh.onrender.com${product.image}`
-            : "",
+          images: [],
+          previews: product.image
+            ? product.images.map(
+                (img: string) =>
+                  `https://e-commerce-backend-1-m0eh.onrender.com${img}`
+              )
+            : [],
         });
       } catch (err) {
         toast.error("Failed to load product details");
@@ -59,27 +62,37 @@ const VendorAddProduct = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      if (!validateImage(e.target.files[0])) return;
-      setForm({
-        ...form,
-        image: e.target.files[0],
-        preview: URL.createObjectURL(e.target.files[0]),
-      });
+    if (!e.target.files) return;
+
+    const files = Array.from(e.target.files);
+
+    for (const file of files) {
+      if (!validateImage(file)) return;
     }
+
+    setForm({
+      ...form,
+      images: files,
+      previews: files.map((file) => URL.createObjectURL(file)),
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateRequired(form.title, form.price, form.description)) return;
-    if (!isEdit && !validateImage(form.image)) return;
+    if (!isEdit && form.images.length === 0) {
+      toast.error("At least one image is required");
+      return;
+    }
     const data = new FormData();
     data.append("title", form.title);
     data.append("price", form.price.toString());
     data.append("description", form.description);
     data.append("vendorId", localStorage.getItem("userId")!);
 
-    if (form.image) data.append("image", form.image);
+     form.images.forEach((img) => {
+      data.append("image", img); // MUST match multer.array("image")
+    });
 
     try {
       if (isEdit) {
@@ -163,17 +176,29 @@ const VendorAddProduct = () => {
                 />
               </Form.Group>
 
-              {form.preview && (
-                <img
-                  src={form.preview}
-                  alt="preview"
+              {form.previews.length > 0 && (
+                <div
                   style={{
-                    width: "100%",
-                    height: 200,
-                    objectFit: "cover",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: 10,
                     marginBottom: 12,
                   }}
-                />
+                >
+                  {form.previews.map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt="preview"
+                      style={{
+                        width: "100%",
+                        height: 100,
+                        objectFit: "cover",
+                        borderRadius: 6,
+                      }}
+                    />
+                  ))}
+                </div>
               )}
 
               <Button type="submit" className="w-100">
