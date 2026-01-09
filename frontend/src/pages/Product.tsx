@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Card,
   Col,
@@ -7,14 +7,16 @@ import {
   Row,
   Pagination,
   Spinner,
-} from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
+const BASE_URL = "https://e-commerce-backend-1-m0eh.onrender.com";
 interface Product {
   _id: string;
   title: string;
   price: number;
-  image: string;
+  images: string[];
+  image:string;
   isActive: boolean;
 }
 
@@ -58,23 +60,26 @@ const Products = () => {
                 className="h-100 product-card"
                 style={{
                   opacity: product.isActive ? 1 : 0.5,
-                  cursor: product.isActive ? 'pointer' : 'not-allowed',
+                  cursor: product.isActive ? "pointer" : "not-allowed",
                 }}
                 onClick={() =>
-                  product.isActive &&
-                  navigate(`/product/${product._id}`)
+                  product.isActive && navigate(`/product/${product._id}`)
                 }
               >
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: "relative" }}>
                   <Card.Img
                     variant="top"
-                    src={product.image}
+                    src={
+                      product.images?.length
+                        ? `${BASE_URL}${product.images[0]}`
+                        : `${product.image}`
+                    }
                     style={{
-                      height: '200px',
-                      objectFit: 'cover',
+                      height: "200px",
+                      objectFit: "cover",
                     }}
                   />
-                    </div>
+                </div>
 
                 <Card.Body>
                   <Card.Title>{product.title}</Card.Title>
