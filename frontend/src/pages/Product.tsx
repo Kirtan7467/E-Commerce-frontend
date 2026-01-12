@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = "https://e-commerce-backend-1-m0eh.onrender.com";
+
 interface Product {
   _id: string;
   title: string;
@@ -71,7 +71,7 @@ const Products = () => {
                     variant="top"
                     src={
                       product.images?.length
-                        ? `${BASE_URL}${product.images[0]}`
+                        ? `${product.images[0]}`
                         : "/vendor.png"
                     }
                     style={{

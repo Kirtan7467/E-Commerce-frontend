@@ -7,6 +7,13 @@ import Navbar from "../pages/Navbar";
 
 const BASE_URL = "https://e-commerce-backend-1-m0eh.onrender.com";
 
+
+const normalizeImage = (url: string): string => {
+  if (!url) return "";
+  const idx = url.indexOf("https://res.cloudinary.com");
+  return idx !== -1 ? url.slice(idx) : url;
+};
+
 interface Product {
   _id: string;
   title: string;
@@ -24,14 +31,15 @@ const ProductDetails = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const res = await axios.get(
-        `${BASE_URL}/product/${id}`
-      );
-
+      const res = await axios.get(`${BASE_URL}/product/${id}`);
       const fetchedProduct = res.data.product || res.data;
 
       setProduct(fetchedProduct);
-      setActiveImage(fetchedProduct.images?.[0] || "");
+      setActiveImage(
+        fetchedProduct.images?.[0]
+          ? normalizeImage(fetchedProduct.images[0])
+          : ""
+      );
     };
 
     fetchProduct();
@@ -63,7 +71,7 @@ const ProductDetails = () => {
               }}
             >
               <img
-                src={`${BASE_URL}${activeImage}`}
+                src={normalizeImage(activeImage)}
                 alt={product.title}
                 style={{
                   width: "100%",
@@ -79,9 +87,9 @@ const ProductDetails = () => {
                 {product.images.map((img, i) => (
                   <img
                     key={i}
-                    src={`${BASE_URL}${img}`}
+                    src={normalizeImage(img)}
                     alt={`thumb-${i}`}
-                    onClick={() => setActiveImage(img)}
+                    onClick={() => setActiveImage(normalizeImage(img))}
                     style={{
                       width: 70,
                       height: 70,
