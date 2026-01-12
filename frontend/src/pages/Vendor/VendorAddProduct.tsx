@@ -83,57 +83,57 @@ const VendorAddProduct = () => {
 
   // 🚀 SUBMIT
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!validateRequired(form.title, form.price, form.description)) return;
+  if (!validateRequired(form.title, form.price, form.description)) return;
 
-    if (!isEdit && form.images.length === 0) {
-      toast.error("At least one image is required");
-      return;
-    }
+  if (!isEdit && form.images.length === 0) {
+    toast.error("At least one image is required");
+    return;
+  }
 
-    const data = new FormData();
-    data.append("title", form.title);
-    data.append("price", form.price.toString());
-    data.append("description", form.description);
+  const data = new FormData();
+  data.append("title", form.title);
+  data.append("price", form.price.toString());
+  data.append("description", form.description);
 
-    // ✅ append multiple images
-    form.images.forEach((img) => {
-      data.append("image", img); // MUST match multer.array("image")
+  if (form.images.length > 0) {
+    form.images.forEach((file) => {
+      data.append("image", file);
     });
+  }
 
-    try {
-      if (isEdit) {
-        await axios.put(
-          `https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`,
-          data,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        toast.success("Product updated successfully");
-      } else {
-        await axios.post(
-          "https://e-commerce-backend-1-m0eh.onrender.com/product",
-          data,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        toast.success("Product added successfully");
-      }
-
-      navigate("/vendor/dashboard");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error(err.response?.data);
-      toast.error(err.response?.data?.message || "Operation failed");
+  try {
+    if (isEdit) {
+      await axios.put(
+        `https://e-commerce-backend-1-m0eh.onrender.com/product/${id}`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+      toast.success("Product updated successfully");
+    } else {
+      await axios.post(
+        "https://e-commerce-backend-1-m0eh.onrender.com/product",
+        data,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+      toast.success("Product added successfully");
     }
-  };
+
+    navigate("/vendor/dashboard");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error(err.response?.data);
+    toast.error(err.response?.data?.message || "Operation failed");
+  }
+};
+
 
   return (
     <>

@@ -72,7 +72,7 @@ const Products = () => {
                     src={
                       product.images?.length
                         ? `${BASE_URL}${product.images[0]}`
-                        : `${product.image}`
+                        : "/vendor.png"
                     }
                     style={{
                       height: "200px",
