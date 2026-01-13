@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button, Container, Table } from "react-bootstrap";
 import AdminNavbar from "../../pages/Admin/AdminNavbar";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../app/hooks";
 import { toast } from "react-toastify";
 
@@ -91,11 +91,7 @@ const AdminProducts = () => {
       <Container style={{ marginTop: 80 }}>
         <h3 className="fw-bold mb-3">Products</h3>
 
-        <div className="d-flex justify-content-end">
-          <Link to="/admin/product/add">
-            <Button variant="primary">Add Products</Button>
-          </Link>
-        </div>
+        
 
         <Table bordered hover className="text-center mt-3">
           <thead>

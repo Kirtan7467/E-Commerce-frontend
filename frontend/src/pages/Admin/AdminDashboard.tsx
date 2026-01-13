@@ -93,10 +93,6 @@ const AdminDashboard = () => {
             <h5 className="fw-bold mb-3">Quick Actions</h5>
 
             <div className="d-flex flex-wrap gap-3">
-              <Button onClick={() => navigate('/admin/product/add')}>
-                ➕ Add Product
-              </Button>
-
               <Button variant="secondary" onClick={() => navigate('/admin/products')}>
                 📦 Manage Products
               </Button>
